@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 import "./ERC20.sol";
 
-contract Airdroplet is ERC20
+contract Airdroplet 
 {
 
     ERC20 public token;
