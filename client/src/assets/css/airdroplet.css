@@ -12,6 +12,7 @@ html {
   position: relative;
   float: left;
   clear: both;
+  width: 7.5vw;
   top: 5vh;
 }
 
@@ -33,6 +34,16 @@ html {
   float:right;
 }
 
+
+.tokenBalance {
+  position: relative;
+  clear: both;
+  float: left;
+  font-size: 1.35em;
+  top: 12.5vh;
+  color: grey;
+}
+
 .pendingModal {
   position: absolute;
   top: 27.5vh;
@@ -43,6 +54,7 @@ html {
 .dApp {
   position: relative;
   text-align: center;
+  font-family: apple-sf;
   margin: 0 auto;
   padding: 10em;
 }

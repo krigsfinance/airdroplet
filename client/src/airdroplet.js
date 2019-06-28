@@ -1,13 +1,16 @@
 import React, { Component } from "react";
 
 import JSONImport from "./contracts/Airdroplet.json"
+import ERC20 from "./contracts/IERC20.json"
 import getWeb3 from "./utils/getWeb3"
 
+// Components
+
+import ConfirmationModal from "./components/confirmationModal"
+import PendingModal from "./components/pendingModal"
 import TextInput from "./components/textInput"
 import Button from "./components/button"
 import Modal from "./components/modal"
-import PendingModal from "./components/pendingModal"
-import ConfirmationModal from "./components/confirmationModal"
 
 import "./assets/css/apple-sf.css"
 import "./assets/css/airdroplet.css"
@@ -15,22 +18,49 @@ import "./assets/css/airdroplet.css"
 class Airdroplet extends Component {
   state = {};
 
+
+
   componentDidMount = async () => {
     try {
-
       const web3 = await getWeb3()
       const accounts = await web3.eth.getAccounts()
       const networkId = await web3.eth.net.getId()
-      this.setState({ web3 })
-
+      const dApp = JSONImport.networks[networkId];
+      const dAppInstance = new web3.eth.Contract(JSONImport.abi,
+             dApp && dApp.address,
+      );
+      this.setState({ account: accounts[0],
+        networkId, dAppInstance, web3 })
     } catch (error) {
-      // Catch any errors for any of the above operations.
       alert(
         `Failed to load web3, accounts, or contract. Check console for details.`,
       );
       console.error(error);
     }
   };
+
+  embedState = (_event) => {
+    this.setState({
+      [_event.target.name]: _event.target.value
+    });
+  }
+
+  tokenMetadata = async(_event) => {
+    const tokenInterface = JSONImport.networks[this.state.networkId];
+    const tokenInstance = new this.state.web3.eth.Contract(ERC20.abi, tokenInterface
+      && this.state.web3.utils.toChecksumAddress(_event.target.value)
+    );
+    var tokenName = await tokenInstance.methods.name().call()
+    var tokenSymbol  = await tokenInstance.methods.symbol().call()
+    var rawBalance = await tokenInstance.methods.balanceOf(this.state.account).call()
+    var parsedValue = this.state.web3.utils.toBN(rawBalance).div(this.state.web3.utils.toBN(1e18))
+    var displayValue = this.state.web3.utils.hexToNumberString(parsedValue);
+    this.setState({
+      balance: displayValue.replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+      symbol: tokenSymbol,
+      name: tokenName
+    });
+  }
 
 
   render() {
@@ -40,10 +70,12 @@ class Airdroplet extends Component {
     return (
       <div className="dApp">
         <Modal className="transactionModal">
-          <TextInput className="addressInput"/>
-          <TextInput className="amountInput"/>
-
+          <TextInput onMouseOut={this.tokenMetadata} name="address" className="addressInput"/>
+          <TextInput onChange={this.embedState} name="amount" className="amountInput"/>
           <Button className="transactionButton">Airdrop</Button>
+          <span className="tokenBalance">
+           Balance: <span style={{ color: 'black'}}> {this.state.balance} {this.state.symbol}</span>
+          </span>
         </Modal>
         <PendingModal className="pendingModal"/>
         <ConfirmationModal className="confirmationModal"/>
