@@ -1,0 +1,48 @@
+html {
+  background-image: linear-gradient(45deg, #FA8BFF 0%, #2BD2FF 52%, #2BFF88 90%);
+  height: 100%;
+}
+
+.addressInput {
+  position: relative;
+  float: left;
+}
+
+.amountInput {
+  position: relative;
+  float: left;
+  clear: both;
+  top: 5vh;
+}
+
+.transactionButton {
+  position: relative;
+  clear: both;
+  top: 17.5vh;
+  float: right;
+}
+
+.transactionModal {
+  position: absolute;
+}
+
+.confirmationModal {
+  position: relative;
+  clear: both;
+  top: 20vh;
+  float:right;
+}
+
+.pendingModal {
+  position: absolute;
+  top: 27.5vh;
+  right: 20vw;
+
+}
+
+.dApp {
+  position: relative;
+  text-align: center;
+  margin: 0 auto;
+  padding: 10em;
+}

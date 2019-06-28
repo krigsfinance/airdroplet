@@ -6,8 +6,8 @@ contract Airdroplet {
 
     IERC20 public Token;
 
-    function airdropTokens(address _contract, address[] _participants, uint _amount) public {
-      Token = ERC20Interface(_contract);
+    function airdropTokens(address _contract, address[] memory _participants, uint _amount) public {
+      Token = IERC20(_contract);
       for(uint index = 0; index < _participants.length; index++){
         Token.transferFrom(msg.sender, _participants[index], _amount);
       }
