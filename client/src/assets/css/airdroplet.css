@@ -8,18 +8,27 @@ html {
   float: left;
 }
 
+.fileInput {
+  position: relative;
+  float: left;
+  clear: both;
+  width: 15vw;
+  top: 5vh;
+}
+
 .amountInput {
   position: relative;
   float: left;
   clear: both;
   width: 7.5vw;
-  top: 5vh;
+  top: 10vh;
 }
+
 
 .transactionButton {
   position: relative;
   clear: both;
-  top: 17.5vh;
+  top: 12.5vh;
   float: right;
 }
 
@@ -40,7 +49,7 @@ html {
   clear: both;
   float: left;
   font-size: 1.35em;
-  top: 12.5vh;
+  top: 7.5vh;
   color: grey;
 }
 
@@ -49,6 +58,10 @@ html {
   top: 27.5vh;
   right: 20vw;
 
+}
+
+.addressCount {
+  font-size: 2em;
 }
 
 .dApp {

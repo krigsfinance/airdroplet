@@ -8,6 +8,7 @@ const PendingModal = styled.div`
   padding: 2.5em;
   height: 7.5em;
   width: 7.5em;
+  color: white;
 
 `
 

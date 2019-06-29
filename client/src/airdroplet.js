@@ -16,7 +16,11 @@ import "./assets/css/apple-sf.css"
 import "./assets/css/airdroplet.css"
 
 class Airdroplet extends Component {
-  state = {};
+  state = {
+    fileReader: new FileReader,
+    buttonText: "Approve",
+    fileData: []
+  };
 
 
 
@@ -62,6 +66,18 @@ class Airdroplet extends Component {
     });
   }
 
+  parseFile = (_event) => {
+    var targetFile = _event.target.files[0];
+    this.state.fileReader.readAsText(targetFile)
+    this.state.fileReader.onloadend = this.readFile
+  }
+
+  readFile = (e) => {
+    var fileContent = this.state.fileReader.result
+    this.setState({ fileData:
+      fileContent.replace(/\r?\n|\r/g, ' ').split(",")
+    });
+  }
 
   render() {
     if (!this.state.web3) {
@@ -71,13 +87,18 @@ class Airdroplet extends Component {
       <div className="dApp">
         <Modal className="transactionModal">
           <TextInput onMouseOut={this.tokenMetadata} name="address" className="addressInput"/>
-          <TextInput onChange={this.embedState} name="amount" className="amountInput"/>
-          <Button className="transactionButton">Airdrop</Button>
+          <TextInput accept=".csv" type="file" onChange={this.parseFile} className="fileInput"/>
+          <TextInput type="number" onChange={this.embedState} name="amount" className="amountInput"/>
+          <Button className="transactionButton">{this.state.buttonText}</Button>
           <span className="tokenBalance">
            Balance: <span style={{ color: 'black'}}> {this.state.balance} {this.state.symbol}</span>
           </span>
         </Modal>
-        <PendingModal className="pendingModal"/>
+        <PendingModal className="pendingModal">
+        <span className="addressCount">
+        0/{this.state.fileData.length}
+        </span>
+        </PendingModal>
         <ConfirmationModal className="confirmationModal"/>
       </div>
     );
