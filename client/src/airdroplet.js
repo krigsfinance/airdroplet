@@ -71,18 +71,21 @@ class Airdroplet extends Component {
     var tokenAddress = this.state.tokenInstance.address
     var addressArray = this.state.fileData;
     var inputArray = addressArray.slice(0,100);
-    var maxArrays = addressArray.length/100;
-    var lastIndex = 0;
-
-    inputArray = addressArray.splice(0, 100);
-    console.log(inputArray);
-
     var airdropAmount = this.stringNumber(this.convertNumber(this.state.amount, parseInt(this.state.decimals)))
-    await this.state.dAppInstance.methods.airdropTokens(tokenAddress, addressArray, airdropAmount).send({
-      from: this.state.account
-    }, (error, transactionHash) => {
+    var nextIndex = 50;
 
+    for(var _index = 0; _index < addressArray.length; _index += 50){
+      if(_index+50 > addressArray.length) nextIndex = addressArray.length;
+      else nextIndex = _index+50;
+      inputArray = addressArray.slice(_index, nextIndex);
+      await new Promise((resolve, reject) => {
+       this.state.dAppInstance.methods.airdropTokens(tokenAddress, inputArray, airdropAmount).send({
+        from: this.state.account
+      }, (error, transactionHash) => {
+        if(transactionHash) resolve(transactionHash)
+      })
     })
+   }
   }
 
   approveTokens = async() => {
