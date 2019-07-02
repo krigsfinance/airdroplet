@@ -63,14 +63,13 @@ html {
 .addressCount {
   position: absolute;
   font-size: 2em;
-  left: 7.5vw;
+  left: 5vw;
 }
 
 .addressIndex {
   position: relative;
-  font-size: 1.25em;
-  clear: both;
   top: 7.5vh;
+  font-size: 2vw;
 }
 
 

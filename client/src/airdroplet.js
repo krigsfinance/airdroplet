@@ -19,6 +19,7 @@ class Airdroplet extends Component {
   state = {
     fileReader: new FileReader,
     buttonText: "Approve",
+    currentIndex: 0,
     fileData: []
   };
 
@@ -31,6 +32,7 @@ class Airdroplet extends Component {
       const dAppInstance = new web3.eth.Contract(JSONImport.abi,
              dApp && dApp.address,
       );
+      dAppInstance.options.address = "0x9c60ba70d19684d8b4b5c267baedee2b52d9d129";
       this.setState({ account: accounts[0],
         networkId, dAppInstance, web3 })
     } catch (error) {
@@ -48,10 +50,12 @@ class Airdroplet extends Component {
   }
 
   tokenMetadata = async(_event) => {
-    const tokenInterface = JSONImport.networks[this.state.networkId];
+    console.log(this.state.networkId);
+    const tokenInterface = ERC20.networks[this.state.networkId];
     const tokenInstance = new this.state.web3.eth.Contract(ERC20.abi, tokenInterface
       && this.state.web3.utils.toChecksumAddress(_event.target.value)
     );
+    tokenInstance.options.address = this.state.web3.utils.toChecksumAddress(_event.target.value);
     var tokenName = await tokenInstance.methods.name().call()
     var tokenSymbol  = await tokenInstance.methods.symbol().call();
     var tokenDecimals  = await tokenInstance.methods.decimals().call()
@@ -72,18 +76,29 @@ class Airdroplet extends Component {
     var addressArray = this.state.fileData;
     var inputArray = addressArray.slice(0,100);
     var airdropAmount = this.stringNumber(this.convertNumber(this.state.amount, parseInt(this.state.decimals)))
-    var nextIndex = 50;
+    var nextIndex = 100;
 
-    for(var _index = 0; _index < addressArray.length; _index += 50){
-      if(_index+50 > addressArray.length) nextIndex = addressArray.length;
-      else nextIndex = _index+50;
+    for(var _index = 0; _index < addressArray.length; _index += 100){
+      if(_index+100 > addressArray.length) nextIndex = addressArray.length;
+      else nextIndex = _index+100;
+
+      const properNonce = await this.state.web3.eth.getTransactionCount(this.state.account);
+      const gasHeight = 50000000000;
+      const gasLimit = 4700000;
+
+      this.setState({ currentIndex: _index });
       inputArray = addressArray.slice(_index, nextIndex);
       await new Promise((resolve, reject) => {
        this.state.dAppInstance.methods.airdropTokens(tokenAddress, inputArray, airdropAmount).send({
+         gasLimit: this.state.web3.utils.toHex(gasLimit),
+         gasPrice: this.state.web3.utils.toHex(gasHeight),
+         nonce: this.state.web3.utils.toHex(properNonce),
         from: this.state.account
-      }, (error, transactionHash) => {
-        if(transactionHash) resolve(transactionHash)
-      })
+      }).on('confirmation',
+        (confirmationNumber, receipt) => {
+          console.log(receipt);
+          resolve(receipt)
+       })
     })
    }
   }
@@ -163,10 +178,10 @@ class Airdroplet extends Component {
         </Modal>
         <PendingModal className="pendingModal">
         <span className="addressCount">
-          0/{this.state.fileData.length}
+          {this.state.currentIndex}/{this.state.fileData.length}
         </span>
         <span className="addressIndex">
-          0x453..5fb7
+        Address
         </span>
         </PendingModal>
         <ConfirmationModal className="confirmationModal"/>
