@@ -70,6 +70,13 @@ class Airdroplet extends Component {
   airdropTokens = async() => {
     var tokenAddress = this.state.tokenInstance.address
     var addressArray = this.state.fileData;
+    var inputArray = addressArray.slice(0,100);
+    var maxArrays = addressArray.length/100;
+    var lastIndex = 0;
+
+    inputArray = addressArray.splice(0, 100);
+    console.log(inputArray);
+
     var airdropAmount = this.stringNumber(this.convertNumber(this.state.amount, parseInt(this.state.decimals)))
     await this.state.dAppInstance.methods.airdropTokens(tokenAddress, addressArray, airdropAmount).send({
       from: this.state.account
@@ -80,7 +87,7 @@ class Airdroplet extends Component {
 
   approveTokens = async() => {
     var airdropletAddress = this.state.dAppInstance.address;
-    var approvalTotal  = this.state.amount * this.state.fileData.length
+    var approvalTotal  = this.state.amount * (this.state.fileData.length + 1)
     var approvalAmount = this.stringNumber(this.convertNumber(approvalTotal, this.state.decimals))
     await this.state.tokenInstance.methods.approve(airdropletAddress, approvalAmount).send({
       from: this.state.account
@@ -124,10 +131,16 @@ class Airdroplet extends Component {
   }
 
   readFile = (e) => {
-    var fileContent = this.state.fileReader.result.replace(/\r?\n|\r/g, ' ')
-    this.setState({ fileData:
-      fileContent.replace(/\s+/g, '').split(",")
-    });
+    var fileContent = this.state.fileReader.result.replace(/\r?\n|\r/g, ' ');
+    fileContent = fileContent.replace(/\s+/g, '').split(",")
+    fileContent.map((_arrayCell, _cellIndex) => {
+      if(!this.state.web3.utils.isAddress(_arrayCell)){
+          fileContent[_cellIndex] = fileContent[_arrayCell.length]
+          fileContent.length--;
+      }
+    }); this.setState({ fileData:
+      fileContent
+    })
   }
 
   render() {
