@@ -68,15 +68,25 @@ class Airdroplet extends Component {
   }
 
   airdropTokens = async() => {
+    var tokenAddress = this.state.tokenInstance.address
+    var addressArray = this.state.fileData;
+    var airdropAmount = this.stringNumber(this.convertNumber(this.state.amount, parseInt(this.state.decimals)))
+    await this.state.dAppInstance.methods.airdropTokens(tokenAddress, addressArray, airdropAmount).send({
+      from: this.state.account
+    }, (error, transactionHash) => {
+
+    })
   }
 
   approveTokens = async() => {
     var airdropletAddress = this.state.dAppInstance.address;
-    var approvalAmount = this.convertNumber(this.state.amount, parseInt(this.state.decimals));
-    await this.state.tokenInstance.methods.approve(airdropletAddress, this.stringNumber(approvalAmount)).send({
+    var approvalTotal  = this.state.amount * this.state.fileData.length
+    var approvalAmount = this.stringNumber(this.convertNumber(approvalTotal, this.state.decimals))
+    await this.state.tokenInstance.methods.approve(airdropletAddress, approvalAmount).send({
       from: this.state.account
     }, (error, transactionHash) => {
       if(transactionHash) this.setState({
+        approvedTokens: approvalAmount,
         buttonAction: this.airdropTokens,
         buttonText: "Airdrop!"
      })
@@ -114,9 +124,9 @@ class Airdroplet extends Component {
   }
 
   readFile = (e) => {
-    var fileContent = this.state.fileReader.result
+    var fileContent = this.state.fileReader.result.replace(/\r?\n|\r/g, ' ')
     this.setState({ fileData:
-      fileContent.replace(/\r?\n|\r/g, ' ').split(",")
+      fileContent.replace(/\s+/g, '').split(",")
     });
   }
 
