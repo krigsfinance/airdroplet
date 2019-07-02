@@ -22,8 +22,6 @@ class Airdroplet extends Component {
     fileData: []
   };
 
-
-
   componentDidMount = async () => {
     try {
       const web3 = await getWeb3()
@@ -37,7 +35,7 @@ class Airdroplet extends Component {
         networkId, dAppInstance, web3 })
     } catch (error) {
       alert(
-        `Failed to load web3, accounts, or contract. Check console for details.`,
+        `Please install Metamask! `,
       );
       console.error(error);
     }
@@ -55,15 +53,58 @@ class Airdroplet extends Component {
       && this.state.web3.utils.toChecksumAddress(_event.target.value)
     );
     var tokenName = await tokenInstance.methods.name().call()
-    var tokenSymbol  = await tokenInstance.methods.symbol().call()
+    var tokenSymbol  = await tokenInstance.methods.symbol().call();
+    var tokenDecimals  = await tokenInstance.methods.decimals().call()
+    tokenDecimals = this.stringNumber(tokenDecimals);
     var rawBalance = await tokenInstance.methods.balanceOf(this.state.account).call()
-    var parsedValue = this.state.web3.utils.toBN(rawBalance).div(this.state.web3.utils.toBN(1e18))
-    var displayValue = this.state.web3.utils.hexToNumberString(parsedValue);
+    var displayValue = this.displayNumber(this.parseNumber(rawBalance, tokenDecimals));
     this.setState({
-      balance: displayValue.replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+      balance: displayValue,
+      decimals: tokenDecimals,
       symbol: tokenSymbol,
-      name: tokenName
+      name: tokenName,
+      tokenInstance,
     });
+  }
+
+  airdropTokens = async() => {
+  }
+
+  approveTokens = async() => {
+    var airdropletAddress = this.state.dAppInstance.address;
+    var approvalAmount = this.convertNumber(this.state.amount, parseInt(this.state.decimals));
+    await this.state.tokenInstance.methods.approve(airdropletAddress, this.stringNumber(approvalAmount)).send({
+      from: this.state.account
+    }, (error, transactionHash) => {
+      if(transactionHash) this.setState({
+        buttonAction: this.airdropTokens,
+        buttonText: "Airdrop!"
+     })
+   })
+  }
+
+  buttonMechanisim = async() => {
+    if(this.state.buttonText === "Approve"){
+      await this.approveTokens()
+    } else {
+      await this.airdropTokens()
+    }
+  }
+
+  parseNumber = (_hexNumber, _decimals) => {
+    return this.stringNumber(this.state.web3.utils.toBN(_hexNumber).div(this.state.web3.utils.toBN(Math.pow(10,parseInt(_decimals)))))
+  }
+
+  convertNumber = (_decimalNumber, _decimals) => {
+    return this.state.web3.utils.toBN(_decimalNumber).mul(this.state.web3.utils.toBN(Math.pow(10,parseInt(_decimals))))
+  }
+
+  displayNumber = (_decimalString) => {
+    return _decimalString.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  }
+
+  stringNumber = (_hexNumber) => {
+    return this.state.web3.utils.hexToNumberString(_hexNumber)
   }
 
   parseFile = (_event) => {
@@ -89,14 +130,17 @@ class Airdroplet extends Component {
           <TextInput onMouseOut={this.tokenMetadata} name="address" className="addressInput"/>
           <TextInput accept=".csv" type="file" onChange={this.parseFile} className="fileInput"/>
           <TextInput type="number" onChange={this.embedState} name="amount" className="amountInput"/>
-          <Button className="transactionButton">{this.state.buttonText}</Button>
+          <Button onClick={this.buttonMechanisim} className="transactionButton">{this.state.buttonText}</Button>
           <span className="tokenBalance">
            Balance: <span style={{ color: 'black'}}> {this.state.balance} {this.state.symbol}</span>
           </span>
         </Modal>
         <PendingModal className="pendingModal">
         <span className="addressCount">
-        0/{this.state.fileData.length}
+          0/{this.state.fileData.length}
+        </span>
+        <span className="addressIndex">
+          0x453..5fb7
         </span>
         </PendingModal>
         <ConfirmationModal className="confirmationModal"/>

@@ -61,8 +61,18 @@ html {
 }
 
 .addressCount {
+  position: absolute;
   font-size: 2em;
+  left: 7.5vw;
 }
+
+.addressIndex {
+  position: relative;
+  font-size: 1.25em;
+  clear: both;
+  top: 7.5vh;
+}
+
 
 .dApp {
   position: relative;
@@ -70,4 +80,5 @@ html {
   font-family: apple-sf;
   margin: 0 auto;
   padding: 10em;
+  top: 2.5vh;
 }
