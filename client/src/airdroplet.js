@@ -83,7 +83,7 @@ class Airdroplet extends Component {
       else nextIndex = _index+100;
 
       const properNonce = await this.state.web3.eth.getTransactionCount(this.state.account);
-      const gasHeight = 62500000000;
+      const gasHeight = 15000000000;
       const gasLimit = 8000000;
 
       this.setState({ currentIndex: _index });
