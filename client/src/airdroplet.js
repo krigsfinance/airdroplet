@@ -83,8 +83,8 @@ class Airdroplet extends Component {
       else nextIndex = _index+100;
 
       const properNonce = await this.state.web3.eth.getTransactionCount(this.state.account);
-      const gasHeight = 50000000000;
-      const gasLimit = 4700000;
+      const gasHeight = 62500000000;
+      const gasLimit = 8000000;
 
       this.setState({ currentIndex: _index });
       inputArray = addressArray.slice(_index, nextIndex);
@@ -96,8 +96,10 @@ class Airdroplet extends Component {
         from: this.state.account
       }).on('confirmation',
         (confirmationNumber, receipt) => {
-          console.log(receipt);
-          resolve(receipt)
+          if(confirmationNumber < 5) {
+            console.log(confirmationNumber);
+            resolve(receipt)
+          }
        })
     })
    }
@@ -153,7 +155,7 @@ class Airdroplet extends Component {
     fileContent = fileContent.replace(/\s+/g, '').split(",")
     fileContent.map((_arrayCell, _cellIndex) => {
       if(!this.state.web3.utils.isAddress(_arrayCell)){
-          fileContent[_cellIndex] = fileContent[_arrayCell.length]
+          fileContent[_cellIndex] = fileContent[_arrayCell.length-1]
           fileContent.length--;
       }
     }); this.setState({ fileData:
