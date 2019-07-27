@@ -50,7 +50,6 @@ class Airdroplet extends Component {
   }
 
   tokenMetadata = async(_event) => {
-    console.log(this.state.networkId);
     const tokenInterface = ERC20.networks[this.state.networkId];
     const tokenInstance = new this.state.web3.eth.Contract(ERC20.abi, tokenInterface
       && this.state.web3.utils.toChecksumAddress(_event.target.value)
@@ -96,8 +95,7 @@ class Airdroplet extends Component {
         from: this.state.account
       }).on('confirmation',
         (confirmationNumber, receipt) => {
-          if(confirmationNumber < 5) {
-            console.log(confirmationNumber);
+          if(confirmationNumber < 2) {
             resolve(receipt)
           }
        })
@@ -151,16 +149,18 @@ class Airdroplet extends Component {
   }
 
   readFile = (e) => {
+    var fileMetadata = { data: [], validity: {} };
     var fileContent = this.state.fileReader.result.replace(/\r?\n|\r/g, ' ');
     fileContent = fileContent.replace(/\s+/g, '').split(",")
     fileContent.map((_arrayCell, _cellIndex) => {
-      if(!this.state.web3.utils.isAddress(_arrayCell)){
-          fileContent[_cellIndex] = fileContent[_arrayCell.length-1]
-          fileContent.length--;
+      if(this.state.web3.utils.isAddress(_arrayCell)
+        && !fileMetadata.validity[_arrayCell]){
+        fileMetadata.validity[_arrayCell] = true;
+        fileMetadata.data.push(_arrayCell);
       }
     }); this.setState({ fileData:
-      fileContent
-    })
+      fileMetadata.data
+    }); console.log(fileMetadata.data);
   }
 
   render() {
